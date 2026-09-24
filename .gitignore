@@ -1,0 +1,23 @@
+# Client
+node_modules/
+dist/
+.env.local
+.env.*.local
+
+# Secrets — a real .env must never be committed (client or server)
+.env
+*.pem
+
+# Design/review artifacts
+.impeccable/
+
+# Local scratch
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
+.DS_Store
+Thumbs.db
+.vercel/
+dist-ssr/

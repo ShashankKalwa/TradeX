@@ -1,0 +1,78 @@
+# TradeX API + MongoDB.
+#
+#   docker compose up --build
+#
+# The API comes up on http://localhost:5000 with a seeded database and Swagger
+# at /api/docs. No manual steps beyond this command.
+#
+# MongoDB runs as a SINGLE-NODE REPLICA SET because the trading engine depends on
+# multi-document transactions, which a standalone server refuses. The replSet
+# flag and the initiate step below are what make that work.
+
+services:
+  mongo:
+    image: mongo:7
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # Brings the replica set up on first boot and then reports readiness, so
+      # `depends_on: service_healthy` means "can actually accept transactions".
+      test: >
+        mongosh --quiet --eval "
+          try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}).ok }
+        "
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      # Replica set name must match the one initiated above.
+      MONGO_URI: mongodb://mongo:27017/tradex?replicaSet=rs0
+      # Override in a real deployment. Compose substitutes from the host env or
+      # a .env file next to this compose file; the default is for local use only.
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-32-chars-min}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
+      STARTING_CASH: ${STARTING_CASH:-100000}
+      TRADE_FEE_RATE: ${TRADE_FEE_RATE:-0.0005}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-auto}
+      ENABLE_JOBS: "true"
+
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY:-}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Seeds the database, then exits. `docker compose up` therefore produces a
+  # working demo with data on the first run.
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test # lets the seed clear the append-only collections
+      MONGO_URI: mongodb://mongo:27017/tradex?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-32-chars-min}
+      STARTING_CASH: ${STARTING_CASH:-100000}
+      MARKET_DATA_PROVIDER: mock
+      ENABLE_JOBS: "false"
+    command: ["node", "scripts/seed.js"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  mongo-data:

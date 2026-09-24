@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Lint, test, and boot
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and integration tests
+        run: npm test
+        env:
+          # The suites start their own in-memory MongoDB replica set, so no
+          # service container is needed. These keep config validation happy.
+          NODE_ENV: test
+          JWT_SECRET: ci-secret-that-is-long-enough-for-hs256-signing
+          STARTING_CASH: '100000'
+
+      # A green test run proves the services work; this proves the process the
+      # deployment actually starts can boot and answer, which tests do not cover.
+      - name: Boot the server and check the health probe
+        run: |
+          node -e "
+            const { MongoMemoryReplSet } = require('mongodb-memory-server');
+            (async () => {
+              const replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+              process.env.MONGO_URI = replSet.getUri();
+              process.env.NODE_ENV = 'production';
+              process.env.PORT = '5099';
+              process.env.JWT_SECRET = 'ci-secret-that-is-long-enough-for-hs256-signing';
+              process.env.ENABLE_JOBS = 'false';
+              process.env.CLIENT_URL = 'http://localhost:5173';
+              require('./src/index.js');
+              const http = require('http');
+              let attempts = 0;
+              const poll = setInterval(() => {
+                attempts += 1;
+                http.get('http://127.0.0.1:5099/health', (res) => {
+                  let body = '';
+                  res.on('data', (c) => { body += c; });
+                  res.on('end', async () => {
+                    clearInterval(poll);
+                    if (res.statusCode !== 200 || !body.includes('\"status\":\"ok\"')) {
+                      console.error('Health check failed:', res.statusCode, body);
+                      process.exit(1);
+                    }
+                    console.log('Boot check passed:', body);
+                    await replSet.stop();
+                    process.exit(0);
+                  });
+                }).on('error', () => {
+                  if (attempts > 30) { console.error('Server never came up'); process.exit(1); }
+                });
+              }, 1000);
+            })();
+          "
+
+      - name: Upload coverage
+        if: always()
+        run: npm run test:coverage
+        continue-on-error: true

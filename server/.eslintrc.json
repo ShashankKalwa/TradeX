@@ -1,0 +1,45 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "es2022": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "script"
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console": ["error", { "allow": ["error"] }],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "eqeqeq": ["error", "smart"],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-throw-literal": "error",
+    "consistent-return": "off",
+    "no-process-exit": "off"
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js", "jest.config.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["scripts/seed.js"],
+      "rules": {
+        // The seed prints demo credentials for the operator to read.
+        "no-console": "off"
+      }
+    }
+  ]
+}

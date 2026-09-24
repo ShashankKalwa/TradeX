@@ -1,0 +1,81 @@
+# TradeX API + MongoDB + Client.
+#
+#   docker compose up --build
+#
+# The API comes up on http://localhost:5000 with a seeded database and Swagger
+# at /api/docs. The client comes up on http://localhost:5173.
+#
+# MongoDB runs as a SINGLE-NODE REPLICA SET because the trading engine depends on
+# multi-document transactions, which a standalone server refuses. The replSet
+# flag and the initiate step below are what make that work.
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://localhost:5000
+      - VITE_USE_MOCK_API=false
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: >
+        mongosh --quiet --eval "
+          try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}).ok }
+        "
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/tradex?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-32-chars-min}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
+      STARTING_CASH: ${STARTING_CASH:-100000}
+      TRADE_FEE_RATE: ${TRADE_FEE_RATE:-0.0005}
+      MARKET_DATA_PROVIDER: ${MARKET_DATA_PROVIDER:-mock}
+      ENABLE_JOBS: "true"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  seed:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test 
+      MONGO_URI: mongodb://mongo:27017/tradex?replicaSet=rs0
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-32-chars-min}
+      STARTING_CASH: ${STARTING_CASH:-100000}
+      MARKET_DATA_PROVIDER: mock
+      ENABLE_JOBS: "false"
+    command: ["node", "scripts/seed.js"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  mongo-data:

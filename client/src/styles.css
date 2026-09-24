@@ -1,0 +1,231 @@
+@import '@fontsource/archivo/400.css';
+@import '@fontsource/archivo/500.css';
+@import '@fontsource/archivo/600.css';
+@import '@fontsource/archivo/700.css';
+@import '@fontsource/spline-sans-mono/400.css';
+@import '@fontsource/spline-sans-mono/500.css';
+@import '@fontsource/spline-sans-mono/600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-desk-900 text-paper-100 font-sans;
+    background-image:
+      radial-gradient(1200px 600px at 70% -10%, rgba(210, 180, 120, 0.07), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(190, 160, 100, 0.05), transparent 55%);
+  }
+
+  /* ---------- Browser surfaces: the parts we did not draw ---------- */
+
+  ::selection {
+    background: #2b5b84;
+    color: #f4eee1;
+  }
+
+  .paper ::selection,
+  .paper::selection {
+    background: rgba(43, 91, 132, 0.28);
+    color: #241f1a;
+  }
+
+  :focus-visible {
+    outline: 2px solid #4a86bf;
+    outline-offset: 2px;
+  }
+
+  .paper :focus-visible {
+    outline: 2px solid #2b5b84;
+    outline-offset: 1px;
+  }
+
+  input,
+  textarea {
+    caret-color: #d96c1e;
+  }
+
+  /* Custom scrollbars belong to the desk, not the OS */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3a352b #191713;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: #191713;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #38332a;
+    border: 2px solid #191713;
+    border-radius: 5px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #4a4438;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ---------- Paper ---------- */
+
+  .paper {
+    background-color: #ece4d4;
+    background-image:
+      /* fiber flecks */ url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.36 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    color: #241f1a;
+    position: relative;
+  }
+
+  .paper-ticket {
+    /* A fresh ticket is slightly brighter stock */
+    background-color: #f4eee1;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.36 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Ruled ledger lines under table rows */
+  .ruled-rows > * + * {
+    border-top: 1px solid rgba(169, 154, 120, 0.45);
+  }
+
+  /* Perforation: the ticket stub tears off along a punched line */
+  .tear-bottom {
+    position: relative;
+  }
+  .tear-bottom::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -4px;
+    height: 7px;
+    background-image: radial-gradient(circle at 3.5px 3.5px, #191713 3px, transparent 3.2px);
+    background-size: 12px 7px;
+    background-repeat: repeat-x;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Margin punch holes on the ledger page */
+  .punch-holes {
+    background-image: radial-gradient(circle 4px at 14px 50%, #191713 3.5px, transparent 4px);
+    background-repeat: repeat-y;
+    background-size: 28px 100%;
+  }
+
+  /* ---------- Stamps ---------- */
+
+  .stamp {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 2.5px solid currentColor;
+    border-radius: 3px;
+    padding: 0.15em 0.5em;
+    display: inline-block;
+    transform: rotate(-3.5deg);
+    mix-blend-mode: multiply;
+    /* Ink bleeds unevenly on a real stamp */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.4 0.7'/%3E%3C/filter%3E%3Crect width='120' height='60' fill='%23fff'/%3E%3Crect width='120' height='60' filter='url(%23r)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.4 0.7'/%3E%3C/filter%3E%3Crect width='120' height='60' fill='%23fff'/%3E%3Crect width='120' height='60' filter='url(%23r)'/%3E%3C/svg%3E");
+    -webkit-mask-composite: add;
+  }
+
+  .stamp-buy { color: #1e5c46; }
+  .stamp-sell { color: #a33327; }
+  .stamp-neutral { color: #5c5344; }
+
+  /* ---------- Ticker tape ---------- */
+
+  .tape-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  }
+
+  /* ---------- Figures ---------- */
+
+  .num {
+    font-family: 'Spline Sans Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .figure-hero {
+    font-variant-numeric: normal;
+    letter-spacing: -0.02em;
+  }
+
+  /* ---------- Desk nav tabs ---------- */
+
+  .desk-tab {
+    transition: background-color 150ms ease-out, color 150ms ease-out;
+  }
+  .desk-tab:hover {
+    background: rgba(236, 228, 212, 0.07);
+  }
+
+  /* ---------- Skeleton ---------- */
+
+  .skeleton-row {
+    background: linear-gradient(90deg, rgba(169, 154, 120, 0.12) 25%, rgba(169, 154, 120, 0.22) 37%, rgba(169, 154, 120, 0.12) 63%);
+    background-size: 800px 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* ---------- Inputs on paper ---------- */
+
+  .field {
+    @apply w-full bg-paper-100 text-ink border border-rule rounded-ticket px-3 py-2 text-sm;
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out;
+  }
+  .field::placeholder {
+    color: #6f6552;
+  }
+  .field:hover {
+    border-color: #a99a78;
+  }
+  .field:focus {
+    background-color: #ffffff;
+    outline: none;
+    border-color: #2b5b84;
+    box-shadow: 0 0 0 3px rgba(43, 91, 132, 0.18);
+  }
+  .field:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #ece4d4 inset;
+    -webkit-text-fill-color: #241f1a;
+  }
+  .field:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(43, 91, 132, 0.18);
+  }
+  .field:disabled {
+    background: #e3d9c4;
+    color: #6f6552;
+    cursor: not-allowed;
+  }
+  .field[aria-invalid='true'] {
+    border-color: #a33327;
+    box-shadow: 0 0 0 3px rgba(163, 51, 39, 0.14);
+  }
+}

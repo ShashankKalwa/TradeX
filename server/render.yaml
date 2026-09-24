@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tradex-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false # Set this to your MongoDB Atlas connection string with ?replicaSet=rs0
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENABLE_JOBS
+        value: "true"
+      - key: MARKET_DATA_PROVIDER
+        value: mock
