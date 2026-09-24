@@ -54,6 +54,8 @@ app.use(generalLimiter);
  *       200: { description: Service and DB are up }
  *       503: { description: DB is unreachable }
  */
+app.all('/', (req, res) => res.status(200).send('TradeX API is running'));
+
 app.get('/health', async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {

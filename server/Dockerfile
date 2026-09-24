@@ -1,11 +1,11 @@
 # TradeX API. Multi-stage so the runtime image carries no dev dependencies.
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /usr/src/app
 COPY package*.json ./
 # --omit=dev keeps jest, nodemon and mongodb-memory-server out of the image.
 RUN npm ci --omit=dev
 
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /usr/src/app
 
 # Run as the unprivileged user that the node image already provides.
