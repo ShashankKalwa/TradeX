@@ -21,3 +21,5 @@ coverage/
 Thumbs.db
 .vercel/
 dist-ssr/
+
+audit-reports/

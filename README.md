@@ -116,7 +116,9 @@ If a number appears on screen and you cannot find the ledger entries that produc
 
 ### Security posture
 
-- Credentials are encrypted on the backend (bcrypt) and authenticated via JWT cookies/tokens.
+- **Authentication**: Credentials are encrypted on the backend (bcrypt) and sessions are managed via strict `HttpOnly` cookies (preventing XSS token theft).
+- **Data Privacy (PII)**: Sensitive user data such as email addresses are encrypted at rest using AES-256-CBC in the database.
+- **Log Sanitization**: Inbound client IP addresses are truncated and hashed before being written to application logs to protect user privacy.
 - Features a strict email verification pipeline for real trades. Unverified users are sandboxed in "explore" mode.
 - Market data is fetched live from Finnhub.
 
