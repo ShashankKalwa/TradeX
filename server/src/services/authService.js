@@ -110,6 +110,14 @@ const attachSession = async (user) => {
   return refreshToken;
 };
 
+/**
+ * Authenticates a user and provisions a new session.
+ * @param {Object} args
+ * @param {string} args.email
+ * @param {string} args.password
+ * @param {string} [args.ip]
+ * @returns {Promise<{ user: Object, accessToken: string, refreshToken: string }>}
+ */
 const login = async ({ email, password, ip }) => {
   const normalizedEmail = String(email).toLowerCase().trim();
   // refreshTokens is select:false, so it must be requested explicitly to append
@@ -222,6 +230,11 @@ const disableTwoFactor = async (userId) => {
   return { twoFactorEnabled: false };
 };
 
+/**
+ * Permanently deletes a user account and all their portfolio/trading history.
+ * @param {string} userId
+ * @returns {Promise<void>}
+ */
 const deleteAccount = async (userId) => {
   const user = await User.findById(userId);
   if (!user) throw Errors.notFound('User not found', 'USER_NOT_FOUND');

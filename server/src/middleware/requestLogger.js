@@ -26,7 +26,7 @@ const requestLogger = (req, res, next) => {
       status: res.statusCode,
       durationMs: Number(durationMs.toFixed(2)),
       userId: req.user ? String(req.user._id) : undefined,
-      ip: req.ip
+      ip: req.ip ? crypto.createHash('sha256').update(req.ip).digest('hex').substring(0, 16) : undefined
     });
   });
 
