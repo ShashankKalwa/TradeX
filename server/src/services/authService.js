@@ -51,7 +51,7 @@ const publicUser = (user) => ({
 const register = async ({ name, email, password, ip }) => {
   const normalizedEmail = String(email).toLowerCase().trim();
 
-  const existing = await User.findOne({ email: normalizedEmail });
+  const existing = await User.findByEmail(normalizedEmail);
   if (existing) throw Errors.conflict('An account with that email already exists', 'EMAIL_IN_USE');
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -122,7 +122,7 @@ const login = async ({ email, password, ip }) => {
   const normalizedEmail = String(email).toLowerCase().trim();
   // refreshTokens is select:false, so it must be requested explicitly to append
   // a session to an existing document.
-  const user = await User.findOne({ email: normalizedEmail }).select('+passwordHash +refreshTokens');
+  const user = await User.findByEmail(normalizedEmail).select('+passwordHash +refreshTokens');
 
   // Same error for both cases: which half was wrong is not the caller's business.
   if (!user) throw Errors.unauthorized('Invalid email or password', 'INVALID_CREDENTIALS');
