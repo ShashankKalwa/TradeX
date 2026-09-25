@@ -12,7 +12,7 @@ const client = axios.create({
 client.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
       localStorage.removeItem('tradex.session');
       window.location.href = '/login';
     }
