@@ -71,7 +71,7 @@ const register = async ({ name, email, password, ip }) => {
   await Watchlist.create({ userId: user._id, symbols: [], alerts: [] });
 
   const verificationUrl = `${clientUrl}/verify-email?token=${verificationToken}`;
-  await emailClient.sendVerificationEmail({ to: user.email, name: user.name, verifyUrl: verificationUrl });
+  emailClient.sendVerificationEmail({ to: user.email, name: user.name, verifyUrl: verificationUrl });
 
   if (!isProduction) {
     logger.info(`Development verification link for ${user.email}: ${verificationUrl}`);
@@ -204,7 +204,7 @@ const resendVerification = async (userId) => {
   user.verificationExpiresAt = new Date(Date.now() + 24 * 3600e3);
   await user.save();
 
-  await emailClient.sendVerificationEmail({
+  emailClient.sendVerificationEmail({
     to: user.email,
     name: user.name,
     verifyUrl: `${clientUrl}/verify-email?token=${token}`

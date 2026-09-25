@@ -33,7 +33,7 @@ export default function App() {
   // We also listen for window focus, so if they switch tabs to check their email
   // and come back, it instantly updates the UI without requiring a manual refresh.
   useEffect(() => {
-    if (!session.token) return
+    if (!session.user) return
 
     const handleFocus = () => dispatch(refreshUser())
     
@@ -42,7 +42,7 @@ export default function App() {
     
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [session.token, dispatch])
+  }, [session.user, dispatch])
 
   // Boot the feed: subscribe the store to price ticks, then start the clock.
   useEffect(() => {
@@ -57,15 +57,15 @@ export default function App() {
 
   // Load the book for the active region
   useEffect(() => {
-    if (session.token) dispatch(refreshBook())
-  }, [session.token, region, dispatch])
+    if (session.user) dispatch(refreshBook())
+  }, [session.user, region, dispatch])
 
   // The scheduler sweep — the client stand-in for node-cron on the backend.
   useEffect(() => {
-    if (!session.token) return
+    if (!session.user) return
     const iv = setInterval(() => dispatch(sweep(region)), 8000)
     return () => clearInterval(iv)
-  }, [session.token, region, dispatch])
+  }, [session.user, region, dispatch])
 
   // Confirmation slips for scheduler fills
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [location.pathname])
 
-  if (!session.token) {
+  if (!session.user) {
     return (
       <>
         <Routes>

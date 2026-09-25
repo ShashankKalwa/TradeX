@@ -31,7 +31,7 @@ export default function VerifyEmail() {
         if (!mounted) return
         
         // If the user is logged in, refresh their status right away
-        if (session.token) {
+        if (session.user) {
           await dispatch(refreshUser()).unwrap()
         }
         
@@ -53,7 +53,7 @@ export default function VerifyEmail() {
     return () => {
       mounted = false
     }
-  }, [token, dispatch, session.token, navigate])
+  }, [token, dispatch, session.user, navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
