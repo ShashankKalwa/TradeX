@@ -67,10 +67,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.statics.findByEmail = function (email) {
-  return this.findOne({ email: encrypt(email.toLowerCase().trim()) });
-};
-
 userSchema.methods.toJSON = function toJSON() {
   const { passwordHash, refreshTokens, verificationTokenHash, totpSecret, ...safe } = this.toObject({ getters: true });
   return safe;
