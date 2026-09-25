@@ -6,7 +6,7 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'strict',
+    sameSite: isProduction ? 'none' : 'lax',
   };
   
   // Access token: typically short-lived (e.g. 15m)
