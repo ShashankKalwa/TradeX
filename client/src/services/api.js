@@ -9,7 +9,7 @@ const client = axios.create({
   withCredentials: true
 });
 
-client.interceptors.response.use(
+client.interceptors.request.use((config) => { const session = JSON.parse(localStorage.getItem('tradex.session')); if (session?.token) { config.headers.Authorization = `Bearer ${session.token}`; } return config; }); client.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {

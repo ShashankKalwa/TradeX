@@ -61,7 +61,7 @@ const register = asyncHandler(async (req, res) => {
   setTokenCookies(res, data.accessToken, data.refreshToken);
   
   // Don't leak tokens in the JSON response
-  delete data.accessToken;
+  // delete data.accessToken; // Kept for frontend Bearer auth
   delete data.refreshToken;
   
   res.status(201).json({ success: true, data });
@@ -92,7 +92,7 @@ const login = asyncHandler(async (req, res) => {
   const data = await authService.login({ ...req.body, ip: req.ip });
   setTokenCookies(res, data.accessToken, data.refreshToken);
   
-  delete data.accessToken;
+  // delete data.accessToken; // Kept for frontend Bearer auth
   delete data.refreshToken;
   
   res.json({ success: true, data });
@@ -113,7 +113,7 @@ const refresh = asyncHandler(async (req, res) => {
   const data = await authService.refresh(incomingRefreshToken);
   setTokenCookies(res, data.accessToken, data.refreshToken);
   
-  delete data.accessToken;
+  // delete data.accessToken; // Kept for frontend Bearer auth
   delete data.refreshToken;
   
   res.json({ success: true, data });

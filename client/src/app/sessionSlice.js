@@ -5,13 +5,13 @@ const stored = JSON.parse(localStorage.getItem('tradex.session') || 'null')
 
 export const auth = createAsyncThunk('session/auth', async ({ mode, creds }) => {
   const res = mode === 'register' ? await api.register(creds) : await api.login(creds)
-  localStorage.setItem('tradex.session', JSON.stringify({ user: res.user }))
+  localStorage.setItem('tradex.session', JSON.stringify({ user: res.user, token: res.accessToken }))
   return res
 })
 
 export const refreshUser = createAsyncThunk('session/refreshUser', async () => {
   const user = await api.fetchMe()
-  localStorage.setItem('tradex.session', JSON.stringify({ user }))
+  const current = JSON.parse(localStorage.getItem('tradex.session') || '{}'); localStorage.setItem('tradex.session', JSON.stringify({ ...current, user }))
   return user
 })
 

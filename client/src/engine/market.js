@@ -81,7 +81,7 @@ let timer = null
 export function startFeed(intervalMs = 2000) {
   if (!USE_MOCK) {
     if (socket) return;
-    socket = io(API_URL);
+    const session = JSON.parse(localStorage.getItem('tradex.session')); socket = io(API_URL, { auth: { token: session?.token } });
     socket.on('priceUpdate', (updates) => {
       // updates is { SYMBOL: { price, tickDir, ... } }
       for (const [sym, u] of Object.entries(updates)) {
