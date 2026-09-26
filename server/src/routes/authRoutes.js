@@ -14,7 +14,7 @@ router.post(
   authLimiter,
   validate([
     body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 80 }),
-    body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
+    body('email').isEmail().withMessage('A valid email is required').normalizeEmail({ gmail_remove_dots: false }),
     ...passwordRules
   ]),
   authController.register
@@ -24,7 +24,7 @@ router.post(
   '/login',
   authLimiter,
   validate([
-    body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
+    body('email').isEmail().withMessage('A valid email is required').normalizeEmail({ gmail_remove_dots: false }),
     body('password').notEmpty().withMessage('Password is required')
   ]),
   authController.login
