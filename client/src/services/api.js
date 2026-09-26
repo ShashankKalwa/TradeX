@@ -109,7 +109,7 @@ export async function placeOrder({ region, symbol, side, type, qty, limitPrice, 
     };
   }
 
-  const data = await client.post('/trade/pending', {
+  const data = await client.post('/trade/orders', {
     symbol,
     orderType: type.toLowerCase(),
     direction: side.toLowerCase(),
