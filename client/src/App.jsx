@@ -42,7 +42,7 @@ export default function App() {
     
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [session.user, dispatch])
+  }, [session.user?.id, dispatch])
 
   // Boot the feed: subscribe the store to price ticks, then start the clock.
   useEffect(() => {
@@ -58,14 +58,14 @@ export default function App() {
   // Load the book for the active region
   useEffect(() => {
     if (session.user) dispatch(refreshBook())
-  }, [session.user, region, dispatch])
+  }, [session.user?.id, region, dispatch])
 
   // The scheduler sweep — the client stand-in for node-cron on the backend.
   useEffect(() => {
     if (!session.user) return
     const iv = setInterval(() => dispatch(sweep(region)), 8000)
     return () => clearInterval(iv)
-  }, [session.user, region, dispatch])
+  }, [session.user?.id, region, dispatch])
 
   // Confirmation slips for scheduler fills
   useEffect(() => {
