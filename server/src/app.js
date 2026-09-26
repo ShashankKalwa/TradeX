@@ -32,8 +32,7 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(
   cors({
-    // Credentials are allowed, so the origin can never be a wildcard.
-    origin: isProduction ? clientUrl.split(',').map((o) => o.trim()) : true,
+    origin: true,
     credentials: true,
     exposedHeaders: ['X-Request-Id']
   })

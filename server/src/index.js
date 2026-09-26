@@ -25,7 +25,10 @@ try {
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: env === 'production' ? clientUrl.split(',').map((o) => o.trim()) : true, credentials: true }
+  cors: { 
+    origin: true, 
+    credentials: true 
+  }
 });
 
 initSockets(io);
