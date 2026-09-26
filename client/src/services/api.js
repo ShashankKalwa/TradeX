@@ -72,8 +72,28 @@ export async function fetchBook(region) {
   const p = portfolioData.data;
   return {
     cash: p.cashBalance,
-    transactions: txData.data.items || [],
-    orders: ordersData.data.items || [],
+    transactions: (txData.data.items || []).map(t => ({
+      id: t._id,
+      ts: new Date(t.timestamp).getTime(),
+      type: t.type.toUpperCase(),
+      symbol: t.symbol,
+      qty: t.quantity,
+      price: t.price,
+      value: t.grossValue,
+      fee: t.fee
+    })),
+    orders: (ordersData.data.items || []).map(o => ({
+      id: o._id,
+      createdAt: new Date(o.createdAt).getTime(),
+      resolvedAt: o.cancelledAt ? new Date(o.cancelledAt).getTime() : new Date(o.updatedAt).getTime(),
+      symbol: o.symbol,
+      side: o.direction.toUpperCase(),
+      type: o.orderType.toUpperCase(),
+      qty: o.quantity,
+      limitPrice: o.targetPrice,
+      stopPrice: o.targetPrice,
+      status: o.status === 'processing' ? 'PENDING' : o.status.toUpperCase()
+    })),
     watchlist: p.watchlist || []
   };
 }
@@ -103,7 +123,7 @@ export async function placeOrder({ region, symbol, side, type, qty, limitPrice, 
         resolvedAt: Date.now()
       },
       fill: {
-        value: data.data.transaction.value,
+        value: data.data.transaction.grossValue,
         fee: data.data.transaction.fee
       }
     };
